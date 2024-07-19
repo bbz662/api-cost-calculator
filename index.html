@@ -49,26 +49,44 @@
         }
 
         function calculateVisionPricing(width, height, detail) {
-            const baseTokens = 85;
-            let totalTokens = baseTokens;
+            const baseTokensLow = 85;
+            const tokenCostPerTile = 170;
+            const baseTokenHigh = 85;
 
             if (detail === "low") {
-                return (totalTokens / 1_000_000) * 0.15;
+                return (baseTokensLow / 1_000_000) * 0.15;
             }
 
             // For high and auto detail
             const maxSize = 2048;
-            const scaledWidth = width > maxSize ? (maxSize / width) * width : width;
-            const scaledHeight = height > maxSize ? (maxSize / height) * height : height;
+            const shortSide = Math.min(width, height);
+            const longSide = Math.max(width, height);
 
-            const shortSide = Math.min(scaledWidth, scaledHeight);
-            const longSide = Math.max(scaledWidth, scaledHeight);
+            // Scale to fit within 2048 x 2048 square
+            let scaledWidth, scaledHeight;
+            if (width > maxSize || height > maxSize) {
+                if (width > height) {
+                    scaledWidth = maxSize;
+                    scaledHeight = (height / width) * maxSize;
+                } else {
+                    scaledHeight = maxSize;
+                    scaledWidth = (width / height) * maxSize;
+                }
+            } else {
+                scaledWidth = width;
+                scaledHeight = height;
+            }
 
-            const finalWidth = shortSide < 768 ? (768 / shortSide) * shortSide : shortSide;
-            const finalHeight = shortSide < 768 ? (768 / shortSide) * longSide : longSide;
+            // Further scale to make the short side 768px
+            if (shortSide < 768) {
+                const scaleFactor = 768 / shortSide;
+                scaledWidth *= scaleFactor;
+                scaledHeight *= scaleFactor;
+            }
 
-            const tiles = Math.ceil(finalWidth / 512) * Math.ceil(finalHeight / 512);
-            totalTokens += tiles * 170;
+            // Calculate the number of 512px tiles
+            const tiles = Math.ceil(scaledWidth / 512) * Math.ceil(scaledHeight / 512);
+            const totalTokens = baseTokenHigh + tiles * tokenCostPerTile;
 
             return (totalTokens / 1_000_000) * 0.15;
         }
