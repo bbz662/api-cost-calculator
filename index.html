@@ -20,6 +20,12 @@
         <label for="height">Image Height:</label>
         <input type="number" id="height" name="height" value="4096"><br><br>
 
+        <label for="baseTokens">Base Token:</label>
+        <select id="baseTokensDetail" name="baseTokensDetail">
+            <option value="85">85</option>
+            <option value="2833">2833</option>
+        </select><br><br>
+        
         <label for="detail">Detail Level:</label>
         <select id="detail" name="detail">
             <option value="low">Low</option>
@@ -30,7 +36,6 @@
     </form>
 
     <h2>Results</h2>
-    <p id="baseTokens">85</p>
     <p id="standardCost">Standard Pricing Cost: </p>
     <p id="batchCost">Batch API Pricing Cost: </p>
     <p id="visionCost">Vision Pricing Cost: </p>
@@ -48,8 +53,7 @@
             return inputCost + outputCost;
         }
 
-        function calculateVisionPricing(width, height, detail) {
-            const baseTokens = 85;
+        function calculateVisionPricing(width, height, detail, baseTokens) {
             let totalTokens = baseTokens;
 
             if (detail === "low") {
@@ -65,19 +69,22 @@
                 if (width > height) {
                     scaledWidth = maxSize;
                     scaledHeight = (height / width) * maxSize;
-                } else {
+                } else if (width < height) {
                     scaledHeight = maxSize;
                     scaledWidth = (width / height) * maxSize;
+                } else {
+                    scaledWidth = maxSize;
+                    scaledHeight = maxSize;
                 }
             }
 
             const shortSide = Math.min(scaledWidth, scaledHeight);
             const longSide = Math.max(scaledWidth, scaledHeight);
 
-            if (shortSide < 768) {
+            if (shortSide < 768 or longSide > 2000) {
                 const scaleFactor = 768 / shortSide;
-                scaledWidth = scaleFactor * scaledWidth;
-                scaledHeight = scaleFactor * scaledHeight;
+                scaledWidth = Math.ceil(scaleFactor * scaledWidth);
+                scaledHeight = Math.ceil(scaleFactor * scaledHeight);
             }
 
             const tilesX = Math.ceil(scaledWidth / 512);
@@ -95,14 +102,15 @@
             const width = parseInt(document.getElementById('width').value);
             const height = parseInt(document.getElementById('height').value);
             const detail = document.getElementById('detail').value;
+            const baseTokens = parseInt(document.getElementById('baseTokensDetail').value);
 
             const standardCost = calculateStandardPricing(inputTokens, outputTokens).toFixed(6);
             const batchCost = calculateBatchPricing(inputTokens, outputTokens).toFixed(6);
-            const visionCost = calculateVisionPricing(width, height, detail).toFixed(6);
+            const visionCost = calculateVisionPricing(width, height, detail, baseTokens).toFixed(6);
 
-            document.getElementById('standardCost').innerText = `Standard Pricing Cost: $${standardCost}`;
-            document.getElementById('batchCost').innerText = `Batch API Pricing Cost: $${batchCost}`;
-            document.getElementById('visionCost').innerText = `Vision Pricing Cost: $${visionCost}`;
+            document.getElementById('standardCost').innerText = `Standard Pricing Cost About: $${standardCost}`;
+            document.getElementById('batchCost').innerText = `Batch API Pricing Cost About: $${batchCost}`;
+            document.getElementById('visionCost').innerText = `Vision Pricing Cost About: $${visionCost}`;
         }
     </script>
 </body>
