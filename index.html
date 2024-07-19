@@ -58,17 +58,33 @@
 
             // For high and auto detail
             const maxSize = 2048;
-            const scaledWidth = width > maxSize ? (maxSize / width) * width : width;
-            const scaledHeight = height > maxSize ? (maxSize / height) * height : height;
+            let scaledWidth = width;
+            let scaledHeight = height;
+
+            if (width > maxSize || height > maxSize) {
+                if (width > height) {
+                    scaledWidth = maxSize;
+                    scaledHeight = (height / width) * maxSize;
+                } else {
+                    scaledHeight = maxSize;
+                    scaledWidth = (width / height) * maxSize;
+                }
+            }
 
             const shortSide = Math.min(scaledWidth, scaledHeight);
             const longSide = Math.max(scaledWidth, scaledHeight);
 
-            const finalWidth = shortSide < 768 ? (768 / shortSide) * shortSide : shortSide;
-            const finalHeight = shortSide < 768 ? (768 / shortSide) * longSide : longSide;
+            if (shortSide < 768) {
+                const scaleFactor = 768 / shortSide;
+                scaledWidth = scaleFactor * scaledWidth;
+                scaledHeight = scaleFactor * scaledHeight;
+            }
 
-            const tiles = Math.ceil(finalWidth / 512) * Math.ceil(finalHeight / 512);
-            totalTokens += tiles * 170;
+            const tilesX = Math.ceil(scaledWidth / 512);
+            const tilesY = Math.ceil(scaledHeight / 512);
+            const totalTiles = tilesX * tilesY;
+
+            totalTokens += totalTiles * 170;
 
             return (totalTokens / 1_000_000) * 0.15;
         }
