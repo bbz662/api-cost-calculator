@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Pricing Calculator</title>
+    <title>ChatGPT 4o mini API Vision Pricing Calculator</title>
 </head>
 <body>
     <h1>API Pricing Calculator</h1>
@@ -24,13 +24,13 @@
         <select id="detail" name="detail">
             <option value="low">Low</option>
             <option value="high">High</option>
-            <option value="auto">Auto</option>
         </select><br><br>
 
         <button type="button" onclick="calculateCosts()">Calculate</button>
     </form>
 
     <h2>Results</h2>
+    <p id="baseTokens">85</p>
     <p id="standardCost">Standard Pricing Cost: </p>
     <p id="batchCost">Batch API Pricing Cost: </p>
     <p id="visionCost">Vision Pricing Cost: </p>
