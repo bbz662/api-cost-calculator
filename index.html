@@ -25,6 +25,12 @@
             <option value="85">85</option>
             <option value="2833">2833</option>
         </select><br><br>
+
+        <label for="tileTokens">Tile Token:</label>
+        <select id="tileTokensDetail" name="tileTokensDetail">
+            <option value="170">170</option>
+            <option value="5667">5667</option>
+        </select><br><br>
         
         <label for="detail">Detail Level:</label>
         <select id="detail" name="detail">
@@ -53,7 +59,7 @@
             return inputCost + outputCost;
         }
 
-        function calculateVisionPricing(width, height, detail, baseTokens) {
+        function calculateVisionPricing(width, height, detail, baseTokens, tileTokens) {
             let totalTokens = baseTokens;
 
             if (detail === "low") {
@@ -91,7 +97,7 @@
             const tilesY = Math.ceil(scaledHeight / 512);
             const totalTiles = tilesX * tilesY;
 
-            totalTokens += totalTiles * 170;
+            totalTokens += totalTiles * tileTokens;
 
             return (totalTokens / 1_000_000) * 0.15;
         }
@@ -103,10 +109,11 @@
             const height = parseInt(document.getElementById('height').value);
             const detail = document.getElementById('detail').value;
             const baseTokens = parseInt(document.getElementById('baseTokensDetail').value);
+            const tileTokens = parseInt(document.getElementById('tileTokensDetail').value);
 
             const standardCost = calculateStandardPricing(inputTokens, outputTokens).toFixed(6);
             const batchCost = calculateBatchPricing(inputTokens, outputTokens).toFixed(6);
-            const visionCost = calculateVisionPricing(width, height, detail, baseTokens).toFixed(6);
+            const visionCost = calculateVisionPricing(width, height, detail, baseTokens, tileTokens).toFixed(6);
 
             document.getElementById('standardCost').innerText = `Standard Pricing Cost About: $${standardCost}`;
             document.getElementById('batchCost').innerText = `Batch API Pricing Cost About: $${batchCost}`;
