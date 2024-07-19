@@ -81,7 +81,7 @@
             const shortSide = Math.min(scaledWidth, scaledHeight);
             const longSide = Math.max(scaledWidth, scaledHeight);
 
-            if (shortSide < 768 or longSide > 2000) {
+            if (shortSide < 768 || longSide > 2000) {
                 const scaleFactor = 768 / shortSide;
                 scaledWidth = Math.ceil(scaleFactor * scaledWidth);
                 scaledHeight = Math.ceil(scaleFactor * scaledHeight);
