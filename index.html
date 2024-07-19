@@ -20,8 +20,12 @@
         <label for="height">Image Height:</label>
         <input type="number" id="height" name="height" value="4096"><br><br>
 
-        <label for="lowResolution">Low Resolution:</label>
-        <input type="checkbox" id="lowResolution" name="lowResolution"><br><br>
+        <label for="detail">Detail Level:</label>
+        <select id="detail" name="detail">
+            <option value="low">Low</option>
+            <option value="high">High</option>
+            <option value="auto">Auto</option>
+        </select><br><br>
 
         <button type="button" onclick="calculateCosts()">Calculate</button>
     </form>
@@ -44,33 +48,41 @@
             return inputCost + outputCost;
         }
 
-        function calculateVisionPricing(width, height, lowResolution) {
-            const baseTokens = 2833;
-            let totalTokens;
+        function calculateVisionPricing(width, height, detail) {
+            const baseTokens = 85;
+            let totalTokens = baseTokens;
 
-            if (lowResolution) {
-                totalTokens = baseTokens;
-            } else {
-                const resizedWidth = 768;
-                const resizedHeight = 768;
-                const tiles = (resizedWidth / 512) * (resizedHeight / 512);
-                const tileTokens = 5667 * tiles;
-                totalTokens = baseTokens + tileTokens;
+            if (detail === "low") {
+                return (totalTokens / 1_000_000) * 0.15;
             }
+
+            // For high and auto detail
+            const maxSize = 2048;
+            const scaledWidth = width > maxSize ? (maxSize / width) * width : width;
+            const scaledHeight = height > maxSize ? (maxSize / height) * height : height;
+
+            const shortSide = Math.min(scaledWidth, scaledHeight);
+            const longSide = Math.max(scaledWidth, scaledHeight);
+
+            const finalWidth = shortSide < 768 ? (768 / shortSide) * shortSide : shortSide;
+            const finalHeight = shortSide < 768 ? (768 / shortSide) * longSide : longSide;
+
+            const tiles = Math.ceil(finalWidth / 512) * Math.ceil(finalHeight / 512);
+            totalTokens += tiles * 170;
 
             return (totalTokens / 1_000_000) * 0.15;
         }
 
         function calculateCosts() {
-            const inputTokens = document.getElementById('inputTokens').value;
-            const outputTokens = document.getElementById('outputTokens').value;
-            const width = document.getElementById('width').value;
-            const height = document.getElementById('height').value;
-            const lowResolution = document.getElementById('lowResolution').checked;
+            const inputTokens = parseInt(document.getElementById('inputTokens').value);
+            const outputTokens = parseInt(document.getElementById('outputTokens').value);
+            const width = parseInt(document.getElementById('width').value);
+            const height = parseInt(document.getElementById('height').value);
+            const detail = document.getElementById('detail').value;
 
             const standardCost = calculateStandardPricing(inputTokens, outputTokens).toFixed(6);
             const batchCost = calculateBatchPricing(inputTokens, outputTokens).toFixed(6);
-            const visionCost = calculateVisionPricing(width, height, lowResolution).toFixed(6);
+            const visionCost = calculateVisionPricing(width, height, detail).toFixed(6);
 
             document.getElementById('standardCost').innerText = `Standard Pricing Cost: $${standardCost}`;
             document.getElementById('batchCost').innerText = `Batch API Pricing Cost: $${batchCost}`;
